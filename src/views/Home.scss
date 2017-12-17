@@ -1,29 +1,76 @@
 @font-face {
   font-family: 'GT-Walsheim';
   src: local('GT-Walsheim-Regular'), url(../assets/fonts/GT-Walsheim-Regular.woff) format('woff');
-  font-weight: normal;
+  font-weight: 400;
 }
 
 @font-face {
   font-family: 'GT-Walsheim';
   src: local('GT-Walsheim-Bold'), url(../assets/fonts/GT-Walsheim-Bold.woff) format('woff');
-  font-weight: bold;
+  font-weight: 700;
 }
 
 @font-face {
   font-family: 'GT-Walsheim';
   src: local('GT-Walsheim-Light'), url(../assets/fonts/GT-Walsheim-Light.woff) format('woff');
-  font-weight: lighter;
+  font-weight: 100;
 }
+
+@mixin box-shadow($top, $left, $blur, $color) {
+  -webkit-box-shadow: $top $left $blur $color;
+  -moz-box-shadow: $top $left $blur $color;
+  box-shadow: $top $left $blur $color;
+}
+
+@mixin rounded($radius: 0.5em) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}
+
+$default-color: #fff;
+$background-color: #01b9b6;
 
 body {
   margin: 0;
   padding: 0;
   font-family: 'GT-Walsheim';
-  background-color: gray
-}
-
-
-.home-container {
-  margin: 40px 30px 30px 40px;
+  font-weight: normal;
+  background-color: $background-color;
+  .home-container {
+    background-color: $background-color;
+    margin: 60px 90px;
+    color: $default-color;
+    .logo-container {
+      text-align: right;
+    }
+    .main-title {
+      padding: 105px 0 60px;
+      margin: 0;
+      font-size: 2.8em;
+      font-weight: bold;
+      letter-spacing: .075em;
+    }
+    .main-button {
+      &, &:active, &:hover, &:focus {
+        color: $background-color;
+        padding: 18px 40px;
+        border: 0;
+        font-weight: lighter;
+        font-size: 1.08em;
+        letter-spacing: .08em;
+        outline: none;
+        @include rounded(8px);
+        @include box-shadow(0, 0, 20px, rgba(0, 0, 0, 0.2));
+      }
+      &:hover {
+        @include box-shadow(0, 0, 20px, rgba(0, 0, 0, 0.4));
+        color: darken($background-color, 10%);
+      }
+      &:active {
+        @include box-shadow(0, 0, 20px, rgba(0, 0, 0, 0));
+        color: $background-color;
+      }
+    }
+  }
 }
