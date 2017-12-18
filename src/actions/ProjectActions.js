@@ -1,10 +1,12 @@
-const exampleAction = payload => {
-  return {
-    type: "exampleAction",
-    payload
-  }
+const postProject = payload => {
+    console.log(payload);
+
+    return {
+        type: "POST_PROJECT",
+        payload
+    }
 }
 
 export {
-  exampleAction
+    postProject
 }

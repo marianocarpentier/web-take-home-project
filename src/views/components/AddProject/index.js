@@ -4,6 +4,7 @@ import {Button, FormControl, InputLabel, Input, Select, MenuItem} from 'material
 import PlacesAutocomplete, {geocodeByAddress, getLatLng} from 'react-places-autocomplete'
 import {PROJECT_TYPES, CONTRACT_VALUES} from 'util/Constants';
 import * as Helpers from 'util/helpers/ProjectHelpers';
+import {postProject} from 'actions/ProjectActions';
 import './AddProject.css';
 
 class AddProject extends Component {
@@ -15,16 +16,19 @@ class AddProject extends Component {
             contractValueItems: [],
             pictureItems: [],
             pictures: [],
-            selectedProjectId: "",
-            selectedContractValueId: "",
-            address: "",
+            selectedProjectId: '',
+            selectedContractValueId: '',
+            address: '',
             addressCode: 0,
             latLng: {},
+            description: ''
         }
         this.selectProject = this.selectProject.bind(this);
         this.selectContract = this.selectContract.bind(this);
         this.onLocationChange = this.changeLocation.bind(this);
         this.handlePictures = this.handlePictures.bind(this);
+        this.postProject = this.postProject.bind(this);
+        this.changeDesc = this.changeDesc.bind(this);
     }
 
     handlePictures(picsArray) {
@@ -39,6 +43,10 @@ class AddProject extends Component {
                 </div>
             )
         })
+    }
+
+    changeDesc(event) {
+        this.setState({...this.state, description: event.target.value});
     }
 
     changeLocation(address) {
@@ -60,6 +68,60 @@ class AddProject extends Component {
             .catch(error => console.error('Error', error))
 
         this.setState({...this.state, address})
+    }
+
+    postProject() {
+
+        const {postProject} = this.props;
+
+        const {
+            addressCode, latLng, description, pictures,
+            selectedContractValueId, selectedProjectId
+        } = this.state;
+
+        let suburb = '';
+        let state = '';
+        let placeId = '';
+        let address = '';
+        if (addressCode) {
+
+            if (addressCode.address_components) {
+
+                suburb = addressCode.address_components.find(comp => comp.types.includes('locality'));
+                state = addressCode.address_components.find(comp => comp.types.includes('administrative_area_level_1'));
+            }
+
+            if (addressCode.place_id) {
+                placeId = addressCode.place_id;
+            }
+
+            if (addressCode.formatted_address) {
+                address = addressCode.formatted_address;
+            }
+        }
+
+        let imageUrls = pictures.map(pic => pic.url);
+        let files = imageUrls.map(url => url.replace('https://ucarecdn.com', '').replace(/\//g, ''));
+
+        let contract = CONTRACT_VALUES.find(contract => contract.id === selectedContractValueId);
+        let {min = 0, max = 0} = contract;
+
+        postProject({
+            "suburb": suburb.long_name,
+            "state": state.short_name,
+            "location_place_id": placeId,
+            "location_lat": latLng.lat,
+            "location_long": latLng.lng,
+            "address": address,
+            "date_unix": Math.round((new Date()).getTime() / 1000),
+            "description": description,
+            "images": imageUrls,
+            "files": files,
+            "default_image_url": imageUrls[0],
+            "project_type_id": selectedProjectId,
+            "min_contract_value": min,
+            "max_contract_value": max
+        });
     }
 
     selectProject(event) {
@@ -95,11 +157,9 @@ class AddProject extends Component {
             selectedContractValueId, address, pictureItems
         } = this.state;
 
-        console.log(this.state);
-
         const {openUploadCareDialog} = Helpers;
 
-        const {selectProject, selectContract, onLocationChange, handlePictures} = this;
+        const {selectProject, selectContract, changeDesc, onLocationChange, handlePictures, postProject} = this;
 
         const inputProps = {
             value: address,
@@ -141,6 +201,7 @@ class AddProject extends Component {
                         <Input
                             id="description"
                             value={this.state.amount}
+                            onChange={changeDesc}
                         />
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
@@ -156,7 +217,7 @@ class AddProject extends Component {
                         <PlacesAutocomplete inputProps={inputProps} classNames={cssClasses}/>
                     </FormControl>
                 </div>
-                <Button className="button primary-button">Submit</Button>
+                <Button className="button primary-button" onClick={postProject}>Submit</Button>
             </div>
         );
     }
@@ -169,7 +230,9 @@ const mapStateToProps = (state, ownProps) => {
 
 
 const mapDispatchToProps = dispatch => {
-    return {}
+    return {
+        postProject: postProject
+    }
 }
 
 
