@@ -7,6 +7,30 @@ $font-color: #fff;
   border-radius: $radius;
 }
 
+@mixin optional-at-root($sel) {
+  @at-root #{if(not &, $sel, selector-append(&, $sel))} {
+    @content;
+  }
+}
+
+@mixin placeholder {
+  @include optional-at-root('::-webkit-input-placeholder') {
+    @content;
+  }
+
+  @include optional-at-root(':-moz-placeholder') {
+    @content;
+  }
+
+  @include optional-at-root('::-moz-placeholder') {
+    @content;
+  }
+
+  @include optional-at-root(':-ms-input-placeholder') {
+    @content;
+  }
+}
+
 .add-projects-cont {
   padding: 0 30px 30px;
   h2 {
@@ -43,19 +67,49 @@ $font-color: #fff;
       label {
         font-family: 'GT-Walsheim';
         font-weight: lighter;
+        font-size: 14px;
         color: $dialog-color;
       }
       input {
         font-family: 'GT-Walsheim';
       }
       & > div {
-        &:hover:before {
+        &:hover:before, &:before {
           background-color: darken($dialog-color, 10%);
         }
         &:after {
           background-color: $dialog-color;
         }
       }
+    }
+  }
+  .autocomplete-container {
+    border: 1px $dialog-color solid;
+    border-top: none;
+    position: absolute;
+    top: 100%;
+    width: calc(100% - 2px);
+    z-index: 10;
+    background-color: #fff;
+  }
+  .autocomplete-item {
+    padding: 3px;
+  }
+  .google-logo-container {
+    display: none;
+  }
+  .location-autocomplete {
+    &, &:active, &:focus {
+      @include placeholder {
+        color: $dialog-color;
+      }
+      margin-top: 17px;
+      outline: none;
+      font-size: 14px;
+      width: 100%;
+      padding: 6px 0 7px;
+      border-width: 0 0 1px 0;
+      border-color: darken($dialog-color, 10%);
     }
   }
 }

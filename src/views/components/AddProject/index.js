@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Button, FormControl, InputLabel, Input, Select, MenuItem} from 'material-ui';
+import PlacesAutocomplete, {geocodeByAddress, getLatLng} from 'react-places-autocomplete'
 import {PROJECT_TYPES, CONTRACT_VALUES} from 'util/Constants';
 import './AddProject.css';
 
@@ -13,9 +14,11 @@ class AddProject extends Component {
             contractValueItems: [],
             selectedProjectId: "",
             selectedContractValueId: "",
+            address: ""
         }
         this.selectProject = this.selectProject.bind(this);
         this.selectContract = this.selectContract.bind(this);
+        this.onLocationChange = (address) => this.setState({...this.state, address})
     }
 
     selectProject(event) {
@@ -46,8 +49,23 @@ class AddProject extends Component {
 
     render() {
 
-        const {projectTypeItems, contractValueItems, selectedProjectId, selectedContractValueId} = this.state;
-        const {selectProject, selectContract} = this;
+        const {projectTypeItems, contractValueItems, selectedProjectId, selectedContractValueId, address} = this.state;
+        const {selectProject, selectContract, onLocationChange} = this;
+
+        const inputProps = {
+            value: address,
+            onChange: onLocationChange,
+            placeholder: 'Add Location'
+        }
+
+        const cssClasses = {
+            input: 'location-autocomplete',
+            autocompleteContainer: 'autocomplete-container',
+            autocompleteItem: 'autocomplete-item',
+            autocompleteItemActive: 'autocomplete-item-active',
+            googleLogoContainer: 'google-logo-container',
+            googleLogoImage: ''
+        }
 
         return (
             <div className="add-projects-cont">
@@ -61,7 +79,7 @@ class AddProject extends Component {
                         <Select
                             value={selectedProjectId}
                             onChange={selectProject}
-                            input={<Input name="type" id="type" />}>
+                            input={<Input name="type" id="type"/>}>
                             {projectTypeItems}
                         </Select>
                     </FormControl>
@@ -82,11 +100,7 @@ class AddProject extends Component {
                         </Select>
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
-                        <InputLabel htmlFor="location">Add Location</InputLabel>
-                        <Input
-                            id="location"
-                            value={this.state.amount}
-                        />
+                        <PlacesAutocomplete inputProps={inputProps} classNames={cssClasses}/>
                     </FormControl>
                 </div>
                 <Button className="button primary-button">Submit</Button>
