@@ -36,8 +36,8 @@ const openUploadCareDialog = handleUploadedImages => {
   // Open the uploadcare dialog
   uploadcare.openDialog(null, DEFAULT_UPLOADCARE_SETTINGS)
   // Fail handler
-  .fail(failedUpload => { 
-    console.log("upload failed: ". failedUpload);
+  .fail(failedUpload => {
+    console.log("upload failed: ".failedUpload);
   })
   // Once modal is closed and files have been converted to url's, fire done handler
   .done(info => {
@@ -51,7 +51,7 @@ const openUploadCareDialog = handleUploadedImages => {
                 url: fileInfo.originalUrl
             });
             if (filesArray.length === filesLength) {
-              // Pass uploaded files to handler 
+              // Pass uploaded files to handler
               handleUploadedImages(filesArray);
             }
         });

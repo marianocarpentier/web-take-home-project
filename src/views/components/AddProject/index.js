@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {Button, FormControl, InputLabel, Input, Select, MenuItem} from 'material-ui';
 import PlacesAutocomplete, {geocodeByAddress, getLatLng} from 'react-places-autocomplete'
 import {PROJECT_TYPES, CONTRACT_VALUES} from 'util/Constants';
+import * as Helpers from 'util/helpers/ProjectHelpers';
 import './AddProject.css';
 
 class AddProject extends Component {
@@ -12,6 +13,8 @@ class AddProject extends Component {
         this.state = {
             projectTypeItems: [],
             contractValueItems: [],
+            pictureItems: [],
+            pictures: [],
             selectedProjectId: "",
             selectedContractValueId: "",
             address: "",
@@ -21,6 +24,21 @@ class AddProject extends Component {
         this.selectProject = this.selectProject.bind(this);
         this.selectContract = this.selectContract.bind(this);
         this.onLocationChange = this.changeLocation.bind(this);
+        this.handlePictures = this.handlePictures.bind(this);
+    }
+
+    handlePictures(picsArray) {
+        this.setState({
+            ...this.state,
+            pictures: picsArray,
+            pictureItems: picsArray.map(pic =>
+                <div className="pic-cont">
+                    <div className="pic">
+                        <img alt={pic.name} src={pic.url}/>
+                    </div>
+                </div>
+            )
+        })
     }
 
     changeLocation(address) {
@@ -33,7 +51,8 @@ class AddProject extends Component {
                 return getLatLng(addressCode)
             })
             .then(latLng => {
-                this.setState({...this.state,
+                this.setState({
+                    ...this.state,
                     addressCode,
                     latLng
                 })
@@ -71,10 +90,16 @@ class AddProject extends Component {
 
     render() {
 
-        const {projectTypeItems, contractValueItems, selectedProjectId,
-            selectedContractValueId, address} = this.state;
+        const {
+            projectTypeItems, contractValueItems, selectedProjectId,
+            selectedContractValueId, address, pictureItems
+        } = this.state;
 
-        const {selectProject, selectContract, onLocationChange} = this;
+        console.log(this.state);
+
+        const {openUploadCareDialog} = Helpers;
+
+        const {selectProject, selectContract, onLocationChange, handlePictures} = this;
 
         const inputProps = {
             value: address,
@@ -94,7 +119,12 @@ class AddProject extends Component {
             <div className="add-projects-cont">
                 <h2>Add a project you&apos;ve worked on</h2>
                 <div className="upload-cont">
-                    <Button className="button secondary-button">Upload photos</Button>
+                    <Button className="button secondary-button" onClick={() => {
+                        openUploadCareDialog(picsArray => handlePictures(picsArray));
+                    }}>Upload photos</Button>
+                </div>
+                <div className="pics">
+                    {pictureItems}
                 </div>
                 <div className="fields-container">
                     <FormControl className="form-control" fullWidth>
