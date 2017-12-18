@@ -30,6 +30,7 @@
 
 $default-color: #fff;
 $background-color: #01b9b6;
+$secondary-color: #d8d8d8;
 
 body {
   margin: 0;
@@ -54,23 +55,24 @@ body {
     .main-button {
       &, &:active, &:hover, &:focus {
         color: $background-color;
+        background-color: $default-color;
+        font-family: 'GT-Walsheim';
         padding: 18px 40px;
-        border: 0;
         font-weight: lighter;
+        text-transform: none;
         font-size: 1.08em;
         letter-spacing: .08em;
-        outline: none;
         @include rounded(8px);
         @include box-shadow(0, 0, 20px, rgba(0, 0, 0, 0.2));
       }
-      &:hover {
-        @include box-shadow(0, 0, 20px, rgba(0, 0, 0, 0.4));
-        color: darken($background-color, 10%);
-      }
-      &:active {
-        @include box-shadow(0, 0, 20px, rgba(0, 0, 0, 0));
-        color: $background-color;
-      }
     }
+  }
+  .close {
+    color: $secondary-color;
+    position: absolute;
+    padding: 0;
+    top: 0;
+    right: 0;
+    min-width: 40px;
   }
 }
