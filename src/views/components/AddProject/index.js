@@ -14,11 +14,33 @@ class AddProject extends Component {
             contractValueItems: [],
             selectedProjectId: "",
             selectedContractValueId: "",
-            address: ""
+            address: "",
+            addressCode: 0,
+            latLng: {},
         }
         this.selectProject = this.selectProject.bind(this);
         this.selectContract = this.selectContract.bind(this);
-        this.onLocationChange = (address) => this.setState({...this.state, address})
+        this.onLocationChange = this.changeLocation.bind(this);
+    }
+
+    changeLocation(address) {
+
+        let addressCode = 0;
+
+        geocodeByAddress(address)
+            .then(results => {
+                addressCode = results[0];
+                return getLatLng(addressCode)
+            })
+            .then(latLng => {
+                this.setState({...this.state,
+                    addressCode,
+                    latLng
+                })
+            })
+            .catch(error => console.error('Error', error))
+
+        this.setState({...this.state, address})
     }
 
     selectProject(event) {
@@ -49,7 +71,9 @@ class AddProject extends Component {
 
     render() {
 
-        const {projectTypeItems, contractValueItems, selectedProjectId, selectedContractValueId, address} = this.state;
+        const {projectTypeItems, contractValueItems, selectedProjectId,
+            selectedContractValueId, address} = this.state;
+
         const {selectProject, selectContract, onLocationChange} = this;
 
         const inputProps = {
@@ -63,8 +87,7 @@ class AddProject extends Component {
             autocompleteContainer: 'autocomplete-container',
             autocompleteItem: 'autocomplete-item',
             autocompleteItemActive: 'autocomplete-item-active',
-            googleLogoContainer: 'google-logo-container',
-            googleLogoImage: ''
+            googleLogoContainer: 'google-logo-container'
         }
 
         return (
