@@ -23,6 +23,7 @@ $font-color: #fff;
     font-weight: lighter;
     padding: 0;
     width: 160px;
+    font-family: 'GT-Walsheim';
     @include rounded(4px);
     &.primary-button {
       background-color: $dialog-color;
@@ -43,6 +44,9 @@ $font-color: #fff;
         font-family: 'GT-Walsheim';
         font-weight: lighter;
         color: $dialog-color;
+      }
+      input {
+        font-family: 'GT-Walsheim';
       }
       & > div {
         &:hover:before {
