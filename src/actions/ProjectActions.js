@@ -16,8 +16,6 @@ const modalClose = () => {
     }
 }
 
-
-
 const postProject = (payload, dispatch) => {
 
     // return {

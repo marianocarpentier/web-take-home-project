@@ -20,7 +20,7 @@ export default class ProjectCard extends Component {
         // and max_contract_value instead of doing this
 
         let desc = project.posts ? project.posts[0].description : '';
-        desc = desc.length >= 80 ? desc.substr(0, 80) + " ..." : '';
+        desc = desc.length >= 80 ? desc.substr(0, 80) + " ..." : desc;
 
         return (
             <div className="project-card">

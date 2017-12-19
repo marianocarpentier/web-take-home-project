@@ -13,7 +13,7 @@ export default class ProjectsContainer extends Component {
             projects
         } = this.props;
 
-        let projectCards = projects.map(p => <ProjectCard project={p} />);
+        let projectCards = projects.map(p => <ProjectCard key={p.id} project={p} />);
 
         return (
             <div className="project-container">

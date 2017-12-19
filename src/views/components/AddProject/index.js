@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {Button, FormControl, InputLabel, Input, Select, MenuItem} from 'material-ui';
 import PlacesAutocomplete, {geocodeByAddress, getLatLng} from 'react-places-autocomplete'
 import {PROJECT_TYPES, CONTRACT_VALUES} from 'util/Constants';
-import * as Helpers from 'util/helpers/ProjectHelpers';
+import {openUploadCareDialog, projectPayloadCreator} from 'util/helpers/ProjectHelpers';
 import {postProject} from 'actions/ProjectActions';
 import './AddProject.css';
 
@@ -37,7 +37,7 @@ class AddProject extends Component {
             ...this.state,
             pictures: picsArray,
             pictureItems: picsArray.map(pic =>
-                <div className="pic-cont">
+                <div className="pic-cont" key={pic.name}>
                     <div className="pic">
                         <img alt={pic.name} src={pic.url}/>
                     </div>
@@ -83,48 +83,8 @@ class AddProject extends Component {
         if (posting)
             return;
 
-        let suburb = '';
-        let state = '';
-        let placeId = '';
-        let address = '';
-        if (addressCode) {
-
-            if (addressCode.address_components) {
-
-                suburb = addressCode.address_components.find(comp => comp.types.includes('locality'));
-                state = addressCode.address_components.find(comp => comp.types.includes('administrative_area_level_1'));
-            }
-
-            if (addressCode.place_id) {
-                placeId = addressCode.place_id;
-            }
-
-            if (addressCode.formatted_address) {
-                address = addressCode.formatted_address;
-            }
-        }
-
-        let imageUrls = pictures.map(pic => pic.url);
-        let files = imageUrls.map(url => url.replace('https://ucarecdn.com', '').replace(/\//g, ''));
-
-        let {min, max} = contract;
-
-        let projectPayload = {
-            "suburb": suburb ? suburb.long_name : '',
-            "state": state ? state.short_name : '',
-            "location_place_id": placeId,
-            "location_lat": latLng.lat,
-            "location_long": latLng.lng,
-            "address": address,
-            "date_unix": Math.round((new Date()).getTime() / 1000),
-            "description": description,
-            "images": imageUrls,
-            "files": files,
-            "default_image_url": imageUrls[0],
-            "project_type_id": selectedProjectId,
-            "min_contract_value": min,
-            "max_contract_value": max
-        };
+        let projectPayload = projectPayloadCreator(addressCode, pictures, contract,
+            latLng, description, selectedProjectId);
 
         // Note: I'm pretty sure that sending the dispatcher
         // as a parameter to the action is not the cleanest
@@ -166,6 +126,37 @@ class AddProject extends Component {
         });
     }
 
+    renderErrors() {
+
+        const {
+            error, posting, message, fieldHints
+        } = this.props;
+
+        let placeError = error && fieldHints && (
+            fieldHints['suburb'] ||
+            fieldHints['state'] ||
+            fieldHints['location_lat'] ||
+            fieldHints['location_long'] ||
+            fieldHints['address']) ?
+            (<div className="message error-message">The selected address is not valid.
+                Most likely, is not specific enough.</div>) : '';
+
+        let projectError = error && fieldHints && fieldHints.project_type_id ?
+            <div className="message error-message">{fieldHints.project_type_id}</div> : '';
+
+        let descriptionError = error && fieldHints && fieldHints.description ?
+            <div className="message error-message">{fieldHints.description}</div> : '';
+
+        let generalError = error && !fieldHints ? <div className="message error-message">{message}</div> : '';
+
+        let status = posting ? <div className="message info-message">The project is being submitted.</div> : '';
+
+        return {
+            placeError, projectError,
+            descriptionError, generalError, status
+        }
+    }
+
     render() {
 
         const {
@@ -173,11 +164,6 @@ class AddProject extends Component {
             selectedContractValueId, address, pictureItems
         } = this.state;
 
-        const {
-            error, posting, message, fieldHints
-        } = this.props;
-
-        const {openUploadCareDialog} = Helpers;
 
         const {
             selectProject, selectContract, handleChangeDesc,
@@ -197,6 +183,8 @@ class AddProject extends Component {
             autocompleteItemActive: 'autocomplete-item-active',
             googleLogoContainer: 'google-logo-container'
         }
+
+        let info = this.renderErrors();
 
         return (
             <div className="add-projects-cont">
@@ -218,8 +206,7 @@ class AddProject extends Component {
                             input={<Input name="type" id="type"/>}>
                             {projectTypeItems}
                         </Select>
-                        {error && fieldHints && fieldHints.project_type_id ?
-                            <div className="message error-message">{fieldHints.project_type_id}</div> : ''}
+                        {info.projectError}
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
                         <InputLabel htmlFor="description">Add a project description</InputLabel>
@@ -228,8 +215,7 @@ class AddProject extends Component {
                             value={this.state.amount}
                             onChange={handleChangeDesc}
                         />
-                        {error && fieldHints && fieldHints.description ?
-                            <div className="message error-message">{fieldHints.description}</div> : ''}
+                        {info.descriptionError}
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
                         <InputLabel htmlFor="value">Select a contract value</InputLabel>
@@ -242,19 +228,12 @@ class AddProject extends Component {
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
                         <PlacesAutocomplete inputProps={inputProps} classNames={cssClasses}/>
-                        {error && fieldHints && (
-                            fieldHints['suburb'] ||
-                            fieldHints['state'] ||
-                            fieldHints['location_lat'] ||
-                            fieldHints['location_long'] ||
-                            fieldHints['address']) ?
-                            (<div className="message error-message">The selected address is not valid.
-                                Most likely, is not specific enough.</div>) : ''}
+                        {info.placeError}
                     </FormControl>
                 </div>
-                {error && !fieldHints ? <div className="message error-message">{message}</div> : ''}
-                {posting ? <div className="message info-message">The project is being submitted.</div> : ''}
-                <Button className={'button primary-button '+(posting?'disabled':'')}
+                {info.generalError}
+                {info.status}
+                <Button className={'button primary-button ' + (this.props.posting ? 'disabled' : '')}
                         onClick={handleAddProject}>Submit</Button>
             </div>
         );
