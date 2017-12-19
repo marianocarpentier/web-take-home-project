@@ -4,14 +4,14 @@ import RestApiClient from './RestApiClient';
 //-------------------------- Add a Project API Call-----------------------------
 //------------------------------------------------------------------------------
 
-const addProject = (newProjectPayload, store, successCallback) => {
-  RestApiClient({
-    relativeUrl: '/v1/me/project',
-    type: 'POST',
-    store: store,
-    payload: newProjectPayload,
-    successCallback
-  });
+const addProject = (newProjectPayload, successCallback, catchCallback) => {
+    RestApiClient({
+        relativeUrl: '/v1/me/project',
+        type: 'POST',
+        payload: newProjectPayload,
+        successCallback,
+        catchCallback
+    });
 }
 
-export { addProject }
+export {addProject}

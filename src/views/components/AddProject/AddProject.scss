@@ -1,5 +1,8 @@
 $dialog-color: #d8d8d8;
 $font-color: #fff;
+$error: #9c0000;
+$info: #007600;
+$wy-color: #01b9b6;
 
 @mixin rounded($radius: 0.5em) {
   -webkit-border-radius: $radius;
@@ -50,8 +53,11 @@ $font-color: #fff;
     font-family: 'GT-Walsheim';
     @include rounded(4px);
     &.primary-button {
-      background-color: $dialog-color;
+      background-color: $wy-color;
       color: $font-color;
+      &.disabled {
+        background-color: $dialog-color;
+      }
     }
     &.secondary-button {
       color: $dialog-color;
@@ -134,6 +140,17 @@ $font-color: #fff;
           display: block;
         }
       }
+    }
+  }
+  .message {
+    padding: 3px 3px 10px;
+    text-align: center;
+    font-size: .8em;
+    &.error-message {
+      color: $error;
+    }
+    &.info-message {
+      color: $info;
     }
   }
 }

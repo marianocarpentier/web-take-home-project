@@ -21,14 +21,15 @@ class AddProject extends Component {
             address: '',
             addressCode: 0,
             latLng: {},
-            description: ''
+            description: '',
+            contract: {min: 0, max: 0}
         }
         this.selectProject = this.selectProject.bind(this);
         this.selectContract = this.selectContract.bind(this);
-        this.onLocationChange = this.changeLocation.bind(this);
+        this.handleLocationChange = this.handleLocationChange.bind(this);
         this.handlePictures = this.handlePictures.bind(this);
-        this.postProject = this.postProject.bind(this);
-        this.changeDesc = this.changeDesc.bind(this);
+        this.handleAddProject = this.handleAddProject.bind(this);
+        this.handleChangeDesc = this.handleChangeDesc.bind(this);
     }
 
     handlePictures(picsArray) {
@@ -45,11 +46,11 @@ class AddProject extends Component {
         })
     }
 
-    changeDesc(event) {
+    handleChangeDesc(event) {
         this.setState({...this.state, description: event.target.value});
     }
 
-    changeLocation(address) {
+    handleLocationChange(address) {
 
         let addressCode = 0;
 
@@ -70,14 +71,17 @@ class AddProject extends Component {
         this.setState({...this.state, address})
     }
 
-    postProject() {
-
-        const {postProject} = this.props;
+    handleAddProject() {
 
         const {
             addressCode, latLng, description, pictures,
-            selectedContractValueId, selectedProjectId
+            contract, selectedProjectId
         } = this.state;
+
+        const {dispatch, posting} = this.props;
+
+        if (posting)
+            return;
 
         let suburb = '';
         let state = '';
@@ -103,12 +107,11 @@ class AddProject extends Component {
         let imageUrls = pictures.map(pic => pic.url);
         let files = imageUrls.map(url => url.replace('https://ucarecdn.com', '').replace(/\//g, ''));
 
-        let contract = CONTRACT_VALUES.find(contract => contract.id === selectedContractValueId);
-        let {min = 0, max = 0} = contract;
+        let {min, max} = contract;
 
-        postProject({
-            "suburb": suburb.long_name,
-            "state": state.short_name,
+        let projectPayload = {
+            "suburb": suburb ? suburb.long_name : '',
+            "state": state ? state.short_name : '',
             "location_place_id": placeId,
             "location_lat": latLng.lat,
             "location_long": latLng.lng,
@@ -121,7 +124,12 @@ class AddProject extends Component {
             "project_type_id": selectedProjectId,
             "min_contract_value": min,
             "max_contract_value": max
-        });
+        };
+
+        // Note: I'm pretty sure that sending the dispatcher
+        // as a parameter to the action is not the cleanest
+        // way to do this. Search for a better way.
+        dispatch(postProject(projectPayload, dispatch));
     }
 
     selectProject(event) {
@@ -131,8 +139,16 @@ class AddProject extends Component {
     }
 
     selectContract(event) {
+
+        const selectedContractValueId = event.target.value;
+
+        let contract = CONTRACT_VALUES.find(contract => contract.id === selectedContractValueId);
+        if (!contract)
+            contract = {min: 0, max: 0}
+
         this.setState(...this.state, {
-            selectedContractValueId: event.target.value
+            selectedContractValueId: selectedContractValueId,
+            contract: contract
         })
     }
 
@@ -157,13 +173,20 @@ class AddProject extends Component {
             selectedContractValueId, address, pictureItems
         } = this.state;
 
+        const {
+            error, posting, message, fieldHints
+        } = this.props;
+
         const {openUploadCareDialog} = Helpers;
 
-        const {selectProject, selectContract, changeDesc, onLocationChange, handlePictures, postProject} = this;
+        const {
+            selectProject, selectContract, handleChangeDesc,
+            handleLocationChange, handlePictures, handleAddProject
+        } = this;
 
         const inputProps = {
             value: address,
-            onChange: onLocationChange,
+            onChange: handleLocationChange,
             placeholder: 'Add Location'
         }
 
@@ -195,14 +218,18 @@ class AddProject extends Component {
                             input={<Input name="type" id="type"/>}>
                             {projectTypeItems}
                         </Select>
+                        {error && fieldHints && fieldHints.project_type_id ?
+                            <div className="message error-message">{fieldHints.project_type_id}</div> : ''}
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
                         <InputLabel htmlFor="description">Add a project description</InputLabel>
                         <Input
                             id="description"
                             value={this.state.amount}
-                            onChange={changeDesc}
+                            onChange={handleChangeDesc}
                         />
+                        {error && fieldHints && fieldHints.description ?
+                            <div className="message error-message">{fieldHints.description}</div> : ''}
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
                         <InputLabel htmlFor="value">Select a contract value</InputLabel>
@@ -215,9 +242,20 @@ class AddProject extends Component {
                     </FormControl>
                     <FormControl className="form-control" fullWidth>
                         <PlacesAutocomplete inputProps={inputProps} classNames={cssClasses}/>
+                        {error && fieldHints && (
+                            fieldHints['suburb'] ||
+                            fieldHints['state'] ||
+                            fieldHints['location_lat'] ||
+                            fieldHints['location_long'] ||
+                            fieldHints['address']) ?
+                            (<div className="message error-message">The selected address is not valid.
+                                Most likely, is not specific enough.</div>) : ''}
                     </FormControl>
                 </div>
-                <Button className="button primary-button" onClick={postProject}>Submit</Button>
+                {error && !fieldHints ? <div className="message error-message">{message}</div> : ''}
+                {posting ? <div className="message info-message">The project is being submitted.</div> : ''}
+                <Button className={'button primary-button '+(posting?'disabled':'')}
+                        onClick={handleAddProject}>Submit</Button>
             </div>
         );
     }
@@ -225,13 +263,19 @@ class AddProject extends Component {
 
 const mapStateToProps = (state, ownProps) => {
 
-    return {}
+    const proj = state.Project;
+    return {
+        error: proj.error,
+        posting: proj.posting,
+        message: proj.message,
+        fieldHints: proj.fieldHints
+    }
 }
 
 
 const mapDispatchToProps = dispatch => {
     return {
-        postProject: postProject
+        dispatch
     }
 }
 

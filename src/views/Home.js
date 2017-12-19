@@ -60,10 +60,12 @@ class Home extends Component {
                 <h1 className="main-title">Post a project</h1>
                 <Button className="main-button" onClick={handlerCreateProject}>Create Project</Button>
                 <Dialog open={this.state.openModal}>
+                    <div className="dialog-class">
                         <Button className="close" onClick={handlerClose}>
                             <Icon>close</Icon>
                         </Button>
                         <AddProject/>
+                    </div>
                 </Dialog>
             </div>
         );

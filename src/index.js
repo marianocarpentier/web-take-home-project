@@ -10,6 +10,8 @@ import { Provider } from 'react-redux'
 import createHistory from 'history/createBrowserHistory'
 import { Route } from 'react-router'
 import { ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-redux'
+import logger from 'redux-logger'
+
 
 //-----------------------------------------------------------------------------------------
 //---------------------------------- Internal imports -------------------------------------
@@ -35,7 +37,7 @@ const store = createStore(
     ...reducers,
     router: routerReducer
   }),
-  applyMiddleware(middleware)
+  applyMiddleware(middleware, logger)
 );
 
 //-----------------------------------------------------------------------------------------
