@@ -1,0 +1,27 @@
+$dialog-color: #d8d8d8;
+$white-color: #fff;
+$wy-color: #01b9b6;
+
+@mixin rounded($radius: 0.5em) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}
+
+.project-card {
+  border: 1px $white-color solid;
+  width: 160px;
+  height: 180px;
+  padding: 10px 8px;
+  float: left;
+  margin-right: 30px;
+  margin-bottom: 30px;
+  @include rounded(7px);
+  p {
+    padding: 7px 0;
+    margin: 0;
+    font-family: 'GT-Walsheim';
+    font-weight: lighter;
+    font-size: .8em;
+  }
+}

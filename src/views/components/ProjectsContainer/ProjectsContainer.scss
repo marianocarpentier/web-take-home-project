@@ -1,0 +1,13 @@
+$dialog-color: #d8d8d8;
+$font-color: #fff;
+$wy-color: #01b9b6;
+
+@mixin rounded($radius: 0.5em) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}
+
+.project-container {
+  padding-top: 100px;
+}

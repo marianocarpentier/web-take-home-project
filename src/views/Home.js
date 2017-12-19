@@ -13,6 +13,8 @@ import {Button, Dialog, Icon} from 'material-ui';
 import './Home.css';
 import WorkyardLogo from '../assets/images/workyard-logo.svg';
 import AddProject from './components/AddProject';
+import ProjectsContainer from './components/ProjectsContainer';
+import { modalAddProject, modalClose } from 'actions/ProjectActions';
 
 //-----------------------------------------------------------------------------------------
 //------------------------------------ Home Component -------------------------------------
@@ -37,11 +39,11 @@ class Home extends Component {
     //-------------------------------------------------------------------------
 
     handlerCreateProject() {
-        this.setState({openModal: true});
+        this.props.dispatch(modalAddProject());
     };
 
     handlerClose() {
-        this.setState({openModal: false});
+        this.props.dispatch(modalClose());
     };
 
     //-------------------------------------------------------------------------
@@ -59,7 +61,7 @@ class Home extends Component {
                 </div>
                 <h1 className="main-title">Post a project</h1>
                 <Button className="main-button" onClick={handlerCreateProject}>Create Project</Button>
-                <Dialog open={this.state.openModal}>
+                <Dialog open={this.props.modalOpen}>
                     <div className="dialog-class">
                         <Button className="close" onClick={handlerClose}>
                             <Icon>close</Icon>
@@ -67,6 +69,7 @@ class Home extends Component {
                         <AddProject/>
                     </div>
                 </Dialog>
+                <ProjectsContainer projects={this.props.projects} />
             </div>
         );
     }
@@ -77,16 +80,19 @@ class Home extends Component {
 //-------------------- Mapping store to Home's props ----------------------
 //-------------------------------------------------------------------------
 
-
 const mapStateToProps = (state, ownProps) => {
 
-    return {}
+    const proj = state.Project;
+    return {
+        modalOpen: proj.modalOpen,
+        projects: proj.projects
+    }
 }
-
 
 const mapDispatchToProps = dispatch => {
-    return {}
+    return {
+        dispatch
+    }
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

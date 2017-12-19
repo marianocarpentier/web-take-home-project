@@ -62,6 +62,11 @@ $wy-color: #01b9b6;
     &.secondary-button {
       color: $dialog-color;
       border: 1px $dialog-color solid;
+      &:hover {
+        background-color: $wy-color;
+        color: $font-color;
+        border: none;
+      }
     }
   }
   .fields-container {

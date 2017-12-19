@@ -21,6 +21,25 @@ export default (state = initialState, action) => {
                 posting: true,
                 message: '',
             }
+        case 'POST_PROJECT_FULFILLED':
+            return {
+                ...state,
+                error: false,
+                posting: false,
+                message: '',
+                dialogOpen: false,
+                projects: state.projects.concat(action.payload)
+            }
+        case 'ADD_PROJECT_OPEN_MODAL':
+            return {
+                ...state,
+                modalOpen: true
+            }
+        case 'ADD_PROJECT_CLOSE_MODAL':
+            return {
+                ...state,
+                modalOpen: false
+            }
         default:
             return state
     }
